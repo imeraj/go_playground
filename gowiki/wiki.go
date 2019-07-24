@@ -81,9 +81,9 @@ func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.Handl
 
 func main() {
 	router := mux.NewRouter()
-	router.HandleFunc("/view/{title}", makeHandler(viewHandler))
-	router.HandleFunc("/edit/{title}", makeHandler(editHandler))
-	router.HandleFunc("/save/{title}", makeHandler(saveHandler))
+	router.HandleFunc("/view/{title}", makeHandler(viewHandler)).Methods("GET")
+	router.HandleFunc("/edit/{title}", makeHandler(editHandler)).Methods("GET")
+	router.HandleFunc("/save/{title}", makeHandler(saveHandler)).Methods("POST")
 
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
