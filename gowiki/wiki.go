@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+
+	"github.com/gorilla/mux"
 )
 
 type Page struct {
@@ -14,7 +16,7 @@ type Page struct {
 }
 
 var templates = template.Must(template.ParseFiles("templates/view.html", "templates/edit.html"))
-var validPath = regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9][a-zA-Z0-9]+)$")
+var validTitle = regexp.MustCompile("^([a-zA-Z0-9]+)$")
 
 func (p *Page) save() error {
 	filename := "data/" + p.Title + ".txt"
@@ -67,18 +69,21 @@ func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
 
 func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		m := validPath.FindStringSubmatch(r.URL.Path)
-		if m == nil {
+		vars := mux.Vars(r)
+		title := validTitle.FindStringSubmatch(vars["title"])
+		if title == nil {
 			http.NotFound(w, r)
 			return
 		}
-		fn(w, r, m[2])
+		fn(w, r, title[0])
 	}
 }
 
 func main() {
-	http.HandleFunc("/view/", makeHandler(viewHandler))
-	http.HandleFunc("/edit/", makeHandler(editHandler))
-	http.HandleFunc("/save/", makeHandler(saveHandler))
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	router := mux.NewRouter()
+	router.HandleFunc("/view/{title}", makeHandler(viewHandler))
+	router.HandleFunc("/edit/{title}", makeHandler(editHandler))
+	router.HandleFunc("/save/{title}", makeHandler(saveHandler))
+
+	log.Fatal(http.ListenAndServe(":8080", router))
 }
