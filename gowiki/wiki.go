@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -15,8 +16,27 @@ type Page struct {
 	Body  []byte
 }
 
+type Middleware func(http.HandlerFunc) http.HandlerFunc
+
 var templates = template.Must(template.ParseFiles("templates/view.html", "templates/edit.html"))
 var validTitle = regexp.MustCompile("^([a-zA-Z0-9]+)$")
+
+func Logging() Middleware {
+	return func(f http.HandlerFunc) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
+			start := time.Now()
+			defer func() { log.Println(r.URL.Path, time.Since(start)) }()
+			f(w, r)
+		}
+	}
+}
+
+func Chain(f http.HandlerFunc, middlewares ...Middleware) http.HandlerFunc {
+	for _, m := range middlewares {
+		f = m(f)
+	}
+	return f
+}
 
 func (p *Page) save() error {
 	filename := "data/" + p.Title + ".txt"
@@ -39,7 +59,14 @@ func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
 	}
 }
 
-func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
+func viewHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	t := validTitle.FindStringSubmatch(vars["title"])
+	if t == nil {
+		http.NotFound(w, r)
+		return
+	}
+	title := t[0]
 	p, err := loadPage(title)
 	if err != nil {
 		http.Redirect(w, r, "/edit/"+title, http.StatusNotFound)
@@ -48,7 +75,14 @@ func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
 	renderTemplate(w, "view", p)
 }
 
-func editHandler(w http.ResponseWriter, r *http.Request, title string) {
+func editHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	t := validTitle.FindStringSubmatch(vars["title"])
+	if t == nil {
+		http.NotFound(w, r)
+		return
+	}
+	title := t[0]
 	p, err := loadPage(title)
 	if err != nil {
 		p = &Page{Title: title}
@@ -56,7 +90,14 @@ func editHandler(w http.ResponseWriter, r *http.Request, title string) {
 	renderTemplate(w, "edit", p)
 }
 
-func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
+func saveHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	t := validTitle.FindStringSubmatch(vars["title"])
+	if t == nil {
+		http.NotFound(w, r)
+		return
+	}
+	title := t[0]
 	body := r.FormValue("body")
 	p := &Page{Title: title, Body: []byte(body)}
 	err := p.save()
@@ -67,23 +108,11 @@ func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
 	http.Redirect(w, r, "/view/"+title, http.StatusFound)
 }
 
-func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		title := validTitle.FindStringSubmatch(vars["title"])
-		if title == nil {
-			http.NotFound(w, r)
-			return
-		}
-		fn(w, r, title[0])
-	}
-}
-
 func main() {
 	router := mux.NewRouter()
-	router.HandleFunc("/view/{title}", makeHandler(viewHandler)).Methods("GET")
-	router.HandleFunc("/edit/{title}", makeHandler(editHandler)).Methods("GET")
-	router.HandleFunc("/save/{title}", makeHandler(saveHandler)).Methods("POST")
+	router.HandleFunc("/view/{title}", Chain(viewHandler, Logging())).Methods("GET")
+	router.HandleFunc("/edit/{title}", Chain(editHandler, Logging())).Methods("GET")
+	router.HandleFunc("/save/{title}", Chain(saveHandler, Logging())).Methods("POST")
 
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
