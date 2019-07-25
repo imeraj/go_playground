@@ -6,9 +6,9 @@ import (
 	"log"
 	"net/http"
 	"regexp"
-	"time"
 
 	"github.com/gorilla/mux"
+	logging "github.com/imeraj/go_playground/gowiki/middleware"
 )
 
 type Page struct {
@@ -16,27 +16,8 @@ type Page struct {
 	Body  []byte
 }
 
-type Middleware func(http.HandlerFunc) http.HandlerFunc
-
 var templates = template.Must(template.ParseFiles("templates/view.html", "templates/edit.html"))
 var validTitle = regexp.MustCompile("^([a-zA-Z0-9]+)$")
-
-func Logging() Middleware {
-	return func(f http.HandlerFunc) http.HandlerFunc {
-		return func(w http.ResponseWriter, r *http.Request) {
-			start := time.Now()
-			defer func() { log.Println(r.URL.Path, time.Since(start)) }()
-			f(w, r)
-		}
-	}
-}
-
-func Chain(f http.HandlerFunc, middlewares ...Middleware) http.HandlerFunc {
-	for _, m := range middlewares {
-		f = m(f)
-	}
-	return f
-}
 
 func (p *Page) save() error {
 	filename := "data/" + p.Title + ".txt"
@@ -110,9 +91,9 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	router := mux.NewRouter()
-	router.HandleFunc("/view/{title}", Chain(viewHandler, Logging())).Methods("GET")
-	router.HandleFunc("/edit/{title}", Chain(editHandler, Logging())).Methods("GET")
-	router.HandleFunc("/save/{title}", Chain(saveHandler, Logging())).Methods("POST")
+	router.HandleFunc("/view/{title}", logging.Chain(viewHandler, logging.Logging())).Methods("GET")
+	router.HandleFunc("/edit/{title}", logging.Chain(editHandler, logging.Logging())).Methods("GET")
+	router.HandleFunc("/save/{title}", logging.Chain(saveHandler, logging.Logging())).Methods("POST")
 
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
