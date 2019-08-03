@@ -11,9 +11,15 @@ type User struct {
 	NewView *views.View
 }
 
+type SingupForm struct {
+	Email    string `schema: "email"`
+	Password string `schema: "password"`
+}
+
 func NewUser() *User {
 	return &User{
-		NewView: views.NewView("bootstrap", "views/users/new.gohtml")}
+		NewView: views.NewView("bootstrap", "users/new"),
+	}
 }
 
 func (u *User) New(w http.ResponseWriter, r *http.Request) {
@@ -23,5 +29,11 @@ func (u *User) New(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u *User) Create(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "This is a temporary response")
+	var form SingupForm
+	if err := parseForm(r, &form); err != nil {
+		panic(err)
+	}
+
+	fmt.Fprintln(w, "email is: ", form.Email)
+	fmt.Fprintln(w, "password is: ", form.Password)
 }
