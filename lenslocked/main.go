@@ -9,9 +9,10 @@ import (
 
 var errorC *controllers.Errors
 var staticC *controllers.Static
-var userC *controllers.User
+var userC *controllers.Users
 
 func init() {
+
 	errorC = controllers.NewErrors()
 	staticC = controllers.NewStatic()
 	userC = controllers.NewUser()
