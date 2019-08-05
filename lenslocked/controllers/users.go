@@ -57,5 +57,5 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "User is: ", user)
+	fmt.Fprintf(w, "User created!")
 }
