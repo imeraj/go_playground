@@ -10,12 +10,13 @@ import (
 var errorC *controllers.Errors
 var staticC *controllers.Static
 var userC *controllers.Users
+var sessionC *controllers.Sessions
 
 func init() {
-
 	errorC = controllers.NewErrors()
 	staticC = controllers.NewStatic()
 	userC = controllers.NewUser()
+	sessionC = controllers.NewSession()
 }
 
 func main() {
@@ -26,6 +27,9 @@ func main() {
 
 	r.HandleFunc("/signup", userC.New).Methods("GET")
 	r.HandleFunc("/signup", userC.Create).Methods("POST")
+
+	r.Handle("/login", sessionC.LoginView).Methods("GET")
+	r.HandleFunc("/login", sessionC.Login).Methods("POST")
 
 	r.NotFoundHandler = http.HandlerFunc(errorC.NotFound)
 
