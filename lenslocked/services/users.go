@@ -2,17 +2,17 @@ package services
 
 import (
 	"github.com/imeraj/go_playground/lenslocked/models"
-	"github.com/imeraj/go_playground/lenslocked/utils"
-	"github.com/jinzhu/gorm"
+	"github.com/imeraj/go_playground/lenslocked/repositories"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type UserService struct {
-	db *gorm.DB
+	repo *repositories.UserRepo
 }
 
-func NewUserService(db *utils.Db) (*UserService, error) {
-	return &UserService{db: db.Db}, nil
+func NewUserService() *UserService {
+	repo := repositories.NewUserRepo()
+	return &UserService{repo: repo}
 }
 
 func (us *UserService) Create(user *models.User) error {
@@ -23,5 +23,5 @@ func (us *UserService) Create(user *models.User) error {
 
 	user.PasswordHash = string(hashedBytes)
 	user.Password = ""
-	return us.db.Create(user).Error
+	return us.repo.Create(user)
 }

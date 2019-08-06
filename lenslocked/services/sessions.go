@@ -2,21 +2,21 @@ package services
 
 import (
 	"github.com/imeraj/go_playground/lenslocked/models"
-	"github.com/imeraj/go_playground/lenslocked/utils"
-	"github.com/jinzhu/gorm"
+	"github.com/imeraj/go_playground/lenslocked/repositories"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type SessionService struct {
-	db *gorm.DB
+	repo *repositories.UserRepo
 }
 
-func NewSessionService(db *utils.Db) (*SessionService, error) {
-	return &SessionService{db: db.Db}, nil
+func NewSessionService() *SessionService {
+	repo := repositories.NewUserRepo()
+	return &SessionService{repo: repo}
 }
 
 func (ss *SessionService) Authenticate(email, password string) (*models.User, error) {
-	foundUser, err := ss.UserByEmail(email)
+	foundUser, err := ss.userByEmail(email)
 	if err != nil {
 		return nil, err
 	}
@@ -32,9 +32,6 @@ func (ss *SessionService) Authenticate(email, password string) (*models.User, er
 	}
 }
 
-func (ss *SessionService) UserByEmail(email string) (*models.User, error) {
-	var user models.User
-	db := ss.db.Where("email = ?", email)
-	err := user.First(db, &user)
-	return &user, err
+func (ss *SessionService) userByEmail(email string) (*models.User, error) {
+	return ss.repo.UserByEmail(email)
 }

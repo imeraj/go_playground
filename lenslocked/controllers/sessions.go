@@ -6,7 +6,6 @@ import (
 
 	"github.com/imeraj/go_playground/lenslocked/models"
 	"github.com/imeraj/go_playground/lenslocked/services"
-	"github.com/imeraj/go_playground/lenslocked/utils"
 	"github.com/imeraj/go_playground/lenslocked/views"
 )
 
@@ -21,11 +20,7 @@ type LoginForm struct {
 }
 
 func NewSession() *Sessions {
-	db := utils.NewDB()
-	ss, err := services.NewSessionService(db)
-	if err != nil {
-		panic(err)
-	}
+	ss := services.NewSessionService()
 
 	return &Sessions{
 		LoginView: views.NewView("bootstrap", "sessions/login"),
