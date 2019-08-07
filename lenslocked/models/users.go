@@ -12,13 +12,16 @@ type User struct {
 	Email        string
 	Password     string `gorm:"-"`
 	PasswordHash string
+	Remember     string `gorm:"-"`
+	RememberHash string
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
 type UserRepo interface {
-	Create(*User) error
+	Create(user *User) error
+	Update(user *User) error
 	UserByEmail(email string) (*User, error)
 }
 

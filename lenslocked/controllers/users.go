@@ -21,6 +21,7 @@ type SingupForm struct {
 }
 
 func NewUser() *Users {
+
 	us := services.NewUserService()
 
 	return &Users{

@@ -2,7 +2,8 @@ package repositories
 
 import (
 	"github.com/imeraj/go_playground/lenslocked/models"
-	"github.com/imeraj/go_playground/lenslocked/utils"
+	"github.com/imeraj/go_playground/lenslocked/utils/datastore"
+
 	"github.com/jinzhu/gorm"
 )
 
@@ -11,12 +12,16 @@ type UserRepo struct {
 }
 
 func NewUserRepo() *UserRepo {
-	db := utils.NewDB()
+	db := datastore.NewDB()
 	return &UserRepo{db: db.Db}
 }
 
 func (repo *UserRepo) Create(user *models.User) error {
 	return repo.db.Create(user).Error
+}
+
+func (repo *UserRepo) Update(user *models.User) error {
+	return repo.db.Save(user).Error
 }
 
 func (repo *UserRepo) UserByEmail(email string) (*models.User, error) {
