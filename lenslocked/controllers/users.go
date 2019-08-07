@@ -6,7 +6,6 @@ import (
 
 	"github.com/imeraj/go_playground/lenslocked/models"
 	"github.com/imeraj/go_playground/lenslocked/services"
-	"github.com/imeraj/go_playground/lenslocked/utils"
 	"github.com/imeraj/go_playground/lenslocked/views"
 )
 
@@ -22,11 +21,7 @@ type SingupForm struct {
 }
 
 func NewUser() *Users {
-	db := utils.NewDB()
-	us, err := services.NewUserService(db)
-	if err != nil {
-		panic(err)
-	}
+	us := services.NewUserService()
 
 	return &Users{
 		NewView: views.NewView("bootstrap", "users/new"),
