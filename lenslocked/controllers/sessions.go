@@ -36,8 +36,8 @@ func (s *Sessions) Login(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	if err := validateForm(form); err != nil {
-		http.Error(w, err.Error(), http.StatusNotAcceptable)
+	if err := validateForm(form); err != "" {
+		http.Error(w, err, http.StatusInternalServerError)
 		return
 	}
 
