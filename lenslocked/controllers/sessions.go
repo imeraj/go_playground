@@ -17,8 +17,8 @@ type Sessions struct {
 }
 
 type LoginForm struct {
-	Email    string `schema: "email"`
-	Password string `schema: "password"`
+	Email    string `schema:"email" validate:"email,required"`
+	Password string `schema:"password" validate:"required"`
 }
 
 func NewSession() *Sessions {
@@ -34,6 +34,11 @@ func (s *Sessions) Login(w http.ResponseWriter, r *http.Request) {
 	form := LoginForm{}
 	if err := parseForm(r, &form); err != nil {
 		panic(err)
+	}
+
+	if err := validateForm(form); err != nil {
+		http.Error(w, err.Error(), http.StatusNotAcceptable)
+		return
 	}
 
 	user, err := s.ss.Authenticate(form.Email, form.Password)
