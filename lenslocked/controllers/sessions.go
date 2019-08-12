@@ -31,8 +31,16 @@ func NewSession() *Sessions {
 	}
 }
 
+func (s *Sessions) GetCookie(r *http.Request) (map[string]string, error) {
+	return getCookie(r)
+}
+
+func (s *Sessions) GetSessionService() *services.SessionService {
+	return s.ss
+}
+
 func (s *Sessions) Login(w http.ResponseWriter, r *http.Request) {
-	validationErrors := &models.ValidationErrors{}
+	validationErrors := &ValidationErrors{}
 	validationErrors.Errors = make(map[string]string)
 	form := LoginForm{}
 
@@ -50,7 +58,7 @@ func (s *Sessions) Login(w http.ResponseWriter, r *http.Request) {
 	switch err {
 	case nil:
 		remember(w, user)
-		fmt.Fprintf(w, "Login successful.")
+		http.Redirect(w, r, "/galleries/new", http.StatusSeeOther)
 	case models.ErrNotFound:
 		fmt.Fprintf(w, "Invalid email address.")
 	case models.ErrInvalidPassword:

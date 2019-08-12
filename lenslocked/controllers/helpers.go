@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/hex"
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/schema"
@@ -55,11 +54,15 @@ func setCookie(w http.ResponseWriter, user *models.User) {
 	}
 }
 
-func getCookie(w http.ResponseWriter, r *http.Request) {
-	if cookie, err := r.Cookie("lenslocked"); err == nil {
-		value := make(map[string]string)
-		if err = s.Decode("lenslocked", cookie.Value, &value); err == nil {
-			fmt.Fprintf(w, "The value of remember_token is %q", value["remember_token"])
-		}
+func getCookie(r *http.Request) (map[string]string, error) {
+	cookie, err := r.Cookie("lenslocked")
+	if err != nil {
+		return nil, err
 	}
+
+	value := make(map[string]string)
+	if err = s.Decode("lenslocked", cookie.Value, &value); err == nil {
+		return value, nil
+	}
+	return nil, err
 }

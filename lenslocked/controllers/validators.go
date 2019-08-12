@@ -9,13 +9,16 @@ import (
 	"github.com/go-playground/locales/en_US"
 	ut "github.com/go-playground/universal-translator"
 	validator "github.com/go-playground/validator"
-	"github.com/imeraj/go_playground/lenslocked/models"
 )
 
 var default_lang = "en"
 
 var validate *validator.Validate
 var uni *ut.UniversalTranslator
+
+type ValidationErrors struct {
+	Errors map[string]string
+}
 
 var enTranslations = []struct {
 	tag     string
@@ -83,7 +86,7 @@ func createKeyValuePairs(m map[string]string) string {
 	return b.String()
 }
 
-func validateForm(form interface{}, validationErrors *models.ValidationErrors) bool {
+func validateForm(form interface{}, validationErrors *ValidationErrors) bool {
 	errs := validate.Struct(form)
 	if errs == nil {
 		return true
@@ -107,6 +110,12 @@ func normalizeSignUpForm(form *SignupForm) error {
 
 	form.Email = strings.ToLower(form.Email)
 	form.Email = strings.TrimSpace(form.Email)
+
+	return nil
+}
+
+func normalizeGalleryForm(form *GalleryFrom) error {
+	form.Title = strings.TrimSpace(form.Title)
 
 	return nil
 }

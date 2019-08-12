@@ -10,7 +10,7 @@ import (
 
 const (
 	configdir  = "configs"
-	configfile = "dbconfig"
+	configfile = "dbconfig_dev"
 )
 
 type DbConfig struct {

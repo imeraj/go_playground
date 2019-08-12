@@ -60,3 +60,12 @@ func (ss *SessionService) remember(user *models.User) (*models.User, error) {
 
 	return user, nil
 }
+
+func (ss *SessionService) ByRemember(token string) (*models.User, error) {
+	user, err := ss.repo.UserByRemember(ss.hmac.Hash(token))
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}

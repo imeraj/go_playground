@@ -23,10 +23,7 @@ type UserRepo interface {
 	Create(user *User) error
 	Update(user *User) error
 	UserByEmail(email string) (*User, error)
-}
-
-type ValidationErrors struct {
-	Errors map[string]string
+	UserByRemember(remember string) (*User, error)
 }
 
 var (

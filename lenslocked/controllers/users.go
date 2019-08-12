@@ -37,7 +37,7 @@ func (u *Users) New(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
-	validationErrors := &models.ValidationErrors{}
+	validationErrors := &ValidationErrors{}
 	validationErrors.Errors = make(map[string]string)
 
 	var form SignupForm

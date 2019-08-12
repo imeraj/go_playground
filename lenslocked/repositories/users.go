@@ -31,6 +31,13 @@ func (repo *UserRepo) UserByEmail(email string) (*models.User, error) {
 	return &user, err
 }
 
+func (repo *UserRepo) UserByRemember(remember string) (*models.User, error) {
+	var user models.User
+	db := repo.db.Where("remember_hash = ?", remember)
+	err := first(db, &user)
+	return &user, err
+}
+
 func first(db *gorm.DB, user *models.User) error {
 	err := db.First(user).Error
 	if err == gorm.ErrRecordNotFound {
