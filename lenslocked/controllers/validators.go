@@ -12,6 +12,8 @@ import (
 	"github.com/imeraj/go_playground/lenslocked/models"
 )
 
+var default_lang = "en"
+
 var validate *validator.Validate
 var uni *ut.UniversalTranslator
 
@@ -73,22 +75,6 @@ func translateFunc(ut ut.Translator, fe validator.FieldError) string {
 	return t
 }
 
-func validateForm(form interface{}) string {
-	errMsg := make(map[string]string)
-	errs := validate.Struct(form)
-	trans, _ := uni.GetTranslator("en")
-
-	for _, err := range errs.(validator.ValidationErrors) {
-		jsonKey := err.Field()
-		fieldName, _ := trans.T(jsonKey)
-		message := strings.Replace(err.Translate(trans), jsonKey, fieldName, -1)
-		jsonKey = jsonKey[0:len(jsonKey)]
-		errMsg[jsonKey] = message
-	}
-
-	return createKeyValuePairs(errMsg)
-}
-
 func createKeyValuePairs(m map[string]string) string {
 	b := new(bytes.Buffer)
 	for key, value := range m {
@@ -97,9 +83,30 @@ func createKeyValuePairs(m map[string]string) string {
 	return b.String()
 }
 
-func normalizeEmail(user *models.User) error {
-	user.Email = strings.ToLower(user.Email)
-	user.Email = strings.TrimSpace(user.Email)
+func validateForm(form interface{}, validationErrors *models.ValidationErrors) bool {
+	errs := validate.Struct(form)
+	if errs == nil {
+		return true
+	}
+
+	trans, _ := uni.GetTranslator(default_lang)
+
+	for _, err := range errs.(validator.ValidationErrors) {
+		jsonKey := err.Field()
+		fieldName, _ := trans.T(jsonKey)
+		message := strings.Replace(err.Translate(trans), jsonKey, fieldName, -1)
+		jsonKey = jsonKey[0:len(jsonKey)]
+		validationErrors.Errors[jsonKey] = message
+	}
+
+	return len(validationErrors.Errors) == 0
+}
+
+func normalizeSignUpForm(form *SignupForm) error {
+	form.Name = strings.TrimSpace(form.Name)
+
+	form.Email = strings.ToLower(form.Email)
+	form.Email = strings.TrimSpace(form.Email)
 
 	return nil
 }

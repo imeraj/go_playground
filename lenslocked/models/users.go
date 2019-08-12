@@ -25,6 +25,10 @@ type UserRepo interface {
 	UserByEmail(email string) (*User, error)
 }
 
+type ValidationErrors struct {
+	Errors map[string]string
+}
+
 var (
 	ErrNotFound        = errors.New("models: User not found")
 	ErrInvalidPassword = errors.New("models: Incorrect password provided")

@@ -18,6 +18,7 @@ type SignupForm struct {
 	Name     string `schema:"name" validate:"alphanum,required"`
 	Email    string `schema:"email" validate:"email,required"`
 	Password string `schema:"password" validate:"min=3,max=8,required"`
+	Errors   map[string]string
 }
 
 func NewUser() *Users {
@@ -36,13 +37,19 @@ func (u *Users) New(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
+	validationErrors := &models.ValidationErrors{}
+	validationErrors.Errors = make(map[string]string)
+
 	var form SignupForm
+
 	if err := parseForm(r, &form); err != nil {
 		panic(err)
 	}
 
-	if err := validateForm(form); err != "" {
-		http.Error(w, err, http.StatusInternalServerError)
+	normalizeSignUpForm(&form)
+	if validateForm(form, validationErrors) == false {
+		form.Errors = validationErrors.Errors
+		u.NewView.Render(w, form)
 		return
 	}
 
@@ -51,8 +58,6 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 		Email:    form.Email,
 		Password: form.Password,
 	}
-
-	normalizeEmail(&user)
 
 	if err := u.us.Create(&user); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

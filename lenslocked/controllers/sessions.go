@@ -19,6 +19,7 @@ type Sessions struct {
 type LoginForm struct {
 	Email    string `schema:"email" validate:"email,required"`
 	Password string `schema:"password" validate:"required"`
+	Errors   map[string]string
 }
 
 func NewSession() *Sessions {
@@ -31,13 +32,17 @@ func NewSession() *Sessions {
 }
 
 func (s *Sessions) Login(w http.ResponseWriter, r *http.Request) {
+	validationErrors := &models.ValidationErrors{}
+	validationErrors.Errors = make(map[string]string)
 	form := LoginForm{}
+
 	if err := parseForm(r, &form); err != nil {
 		panic(err)
 	}
 
-	if err := validateForm(form); err != "" {
-		http.Error(w, err, http.StatusInternalServerError)
+	if validateForm(form, validationErrors) == false {
+		form.Errors = validationErrors.Errors
+		s.LoginView.Render(w, form)
 		return
 	}
 

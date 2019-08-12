@@ -6,7 +6,7 @@
         <h3 class="panel-title">Welcome Back!</h3>
       </div>
       <div class="panel-body">
-        {{template "loginForm"}}
+        {{template "loginForm" .}}
       </div>
     </div>
   </div>
@@ -14,17 +14,25 @@
 {{end}}
 
 {{define "loginForm"}}
+<style type="text/css">.error {color: red;}</style>
+
 <form action="/login" method="POST">
   <div class="form-group">
     <label for="email">Email address</label>
     <input type="email" name="email" class="form-control"
-      id="email" placeholder="Email">
+      id="email" placeholder="Email" value="{{ if .Email }} {{ .Email }} {{ end }}">
+    {{ with .Errors.Email }}
+      <p class="error">{{ . }}</p>
+    {{ end }} 
   </div>
   <div class="form-group">
     <label for="password">Password</label>
     <input type="password" name="password"
       class="form-control" id="password"
       placeholder="Password">
+    {{ with .Errors.Password }}
+        <p class="error">{{ . }} </p>
+    {{ end }}  
   </div>
   <button type="submit" class="btn btn-primary">Log In</button>
 </form>
