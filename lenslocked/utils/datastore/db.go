@@ -3,14 +3,15 @@ package datastore
 import (
 	"fmt"
 
+	"github.com/imeraj/go_playground/lenslocked/utils/paths"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/spf13/viper"
 )
 
-const (
+var (
 	configdir  = "configs"
-	configfile = "dbconfig_dev"
+	configfile = "dbconfig"
 )
 
 type DbConfig struct {
@@ -46,8 +47,10 @@ func NewDB() *Db {
 
 func readDbConfig() DbConfig {
 	var dbConfig DbConfig
+	var config string
+	config = paths.BuildPath(configfile)
 
-	viper.SetConfigName(configfile)
+	viper.SetConfigName(config)
 	viper.AddConfigPath(configdir)
 	if err := viper.ReadInConfig(); err != nil {
 		panic(err)
