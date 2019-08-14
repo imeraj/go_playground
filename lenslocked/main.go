@@ -42,6 +42,7 @@ func main() {
 	r.HandleFunc("/galleries", authMw.ApplyFn(galleriesC.Create)).Methods("POST")
 	r.HandleFunc("/galleries", authMw.ApplyFn(galleriesC.Index)).Methods("GET")
 	r.HandleFunc("/galleries/{id:[0-9]+}", authMw.ApplyFn(galleriesC.Show)).Methods("GET")
+	r.HandleFunc("/galleries/{id:[0-9]+}/delete", authMw.ApplyFn(galleriesC.Delete)).Methods("POST")
 
 	r.NotFoundHandler = http.HandlerFunc(errorC.NotFound)
 

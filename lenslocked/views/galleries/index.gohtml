@@ -8,6 +8,7 @@
           <th>Title</th>
           <th>View</th>
           <th>Edit</th>
+          <th>Delete</th>
         </tr>
       </thead>
       <tbody>
@@ -24,6 +25,11 @@
                     <a href="/galleries/{{.ID}}/edit">
                       Edit
                     </a>
+                </td>
+                <td>
+                    <form action="/galleries/{{.ID}}/delete" method="POST">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
                 </td>
             </tr>
         {{end}}

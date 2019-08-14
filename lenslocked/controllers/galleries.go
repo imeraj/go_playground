@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -69,7 +68,7 @@ func (g *Galleries) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "Gallery created!")
+	http.Redirect(w, r, "/galleries", http.StatusSeeOther)
 }
 
 func (g *Galleries) Index(w http.ResponseWriter, r *http.Request) {
@@ -99,4 +98,34 @@ func (g *Galleries) Show(w http.ResponseWriter, r *http.Request) {
 	}
 
 	g.ShowView.Render(w, gallery)
+}
+
+func (g *Galleries) Delete(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	idStr := vars["id"]
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, models.ErrInvalidGalleryID.Error(), http.StatusNotFound)
+		return
+	}
+
+	gallery, err := g.gs.ByID(uint(id))
+	if err != nil {
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+
+	user := context.User(r.Context())
+	if gallery.UserID != user.ID {
+		http.Error(w, "You do not have permission to delete this gallery.", http.StatusForbidden)
+		return
+	}
+
+	err = g.gs.Delete(gallery.ID)
+	if err != nil {
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/galleries", http.StatusSeeOther)
 }

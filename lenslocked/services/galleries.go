@@ -25,6 +25,10 @@ func (gs *GalleryService) ByUserID(userID uint) ([]models.Gallery, error) {
 	return gs.repo.ByUserID(userID)
 }
 
-func (gs *GalleryService) ByID(id uint) (*models.Gallery, error) {
-	return gs.repo.ByID(id)
+func (gs *GalleryService) ByID(galleryID uint) (*models.Gallery, error) {
+	return gs.repo.ByID(galleryID)
+}
+
+func (gs *GalleryService) Delete(galleryID uint) error {
+	return gs.repo.Delete(galleryID)
 }
