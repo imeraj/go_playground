@@ -2,20 +2,20 @@ package services
 
 import (
 	"github.com/imeraj/go_playground/lenslocked/models"
-	"github.com/imeraj/go_playground/lenslocked/repositories"
+	usersrepo "github.com/imeraj/go_playground/lenslocked/repositories/user"
 	"github.com/imeraj/go_playground/lenslocked/utils/hash"
 	"github.com/imeraj/go_playground/lenslocked/utils/rand"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type SessionService struct {
-	repo *repositories.UserRepo
+	repo *usersrepo.UserRepo
 	hmac hash.HMAC
 }
 
 func NewSessionService() *SessionService {
 	hmac := hash.NewHMAC(hmacSecretKey)
-	repo := repositories.NewUserRepo()
+	repo := usersrepo.NewUserRepo()
 
 	return &SessionService{
 		repo: repo,
@@ -41,7 +41,7 @@ func (ss *SessionService) Authenticate(email, password string) (*models.User, er
 }
 
 func (ss *SessionService) userByEmail(email string) (*models.User, error) {
-	return ss.repo.UserByEmail(email)
+	return ss.repo.ByEmail(email)
 }
 
 func (ss *SessionService) remember(user *models.User) (*models.User, error) {
@@ -62,7 +62,7 @@ func (ss *SessionService) remember(user *models.User) (*models.User, error) {
 }
 
 func (ss *SessionService) ByRemember(token string) (*models.User, error) {
-	user, err := ss.repo.UserByRemember(ss.hmac.Hash(token))
+	user, err := ss.repo.ByRemember(ss.hmac.Hash(token))
 	if err != nil {
 		return nil, err
 	}

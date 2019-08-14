@@ -2,18 +2,18 @@ package services
 
 import (
 	"github.com/imeraj/go_playground/lenslocked/models"
-	"github.com/imeraj/go_playground/lenslocked/repositories"
+	usersrepo "github.com/imeraj/go_playground/lenslocked/repositories/user"
 	"golang.org/x/crypto/bcrypt"
 )
 
 const hmacSecretKey = "secret-hmac-key" // ideally should not be stored in code
 
 type UserService struct {
-	repo *repositories.UserRepo
+	repo *usersrepo.UserRepo
 }
 
 func NewUserService() *UserService {
-	repo := repositories.NewUserRepo()
+	repo := usersrepo.NewUserRepo()
 
 	return &UserService{
 		repo: repo,

@@ -1,4 +1,4 @@
-package repositories
+package usersrepo
 
 import (
 	"github.com/imeraj/go_playground/lenslocked/models"
@@ -24,14 +24,14 @@ func (repo *UserRepo) Update(user *models.User) error {
 	return repo.db.Save(user).Error
 }
 
-func (repo *UserRepo) UserByEmail(email string) (*models.User, error) {
+func (repo *UserRepo) ByEmail(email string) (*models.User, error) {
 	var user models.User
 	db := repo.db.Where("email = ?", email)
 	err := first(db, &user)
 	return &user, err
 }
 
-func (repo *UserRepo) UserByRemember(remember string) (*models.User, error) {
+func (repo *UserRepo) ByRemember(remember string) (*models.User, error) {
 	var user models.User
 	db := repo.db.Where("remember_hash = ?", remember)
 	err := first(db, &user)

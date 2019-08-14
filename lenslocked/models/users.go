@@ -1,7 +1,6 @@
 package models
 
 import (
-	"errors"
 	"time"
 )
 
@@ -22,11 +21,6 @@ type User struct {
 type UserRepo interface {
 	Create(user *User) error
 	Update(user *User) error
-	UserByEmail(email string) (*User, error)
-	UserByRemember(remember string) (*User, error)
+	ByEmail(email string) (*User, error)
+	ByRemember(remember string) (*User, error)
 }
-
-var (
-	ErrNotFound        = errors.New("models: User not found")
-	ErrInvalidPassword = errors.New("models: Incorrect password provided")
-)

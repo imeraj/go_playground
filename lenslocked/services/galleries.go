@@ -2,15 +2,15 @@ package services
 
 import (
 	"github.com/imeraj/go_playground/lenslocked/models"
-	"github.com/imeraj/go_playground/lenslocked/repositories"
+	galleriesrepo "github.com/imeraj/go_playground/lenslocked/repositories/gallery"
 )
 
 type GalleryService struct {
-	repo *repositories.GalleryRepo
+	repo *galleriesrepo.GalleryRepo
 }
 
 func NewGalleryService() *GalleryService {
-	repo := repositories.NewGalleryRepo()
+	repo := galleriesrepo.NewGalleryRepo()
 
 	return &GalleryService{
 		repo: repo,
@@ -19,4 +19,12 @@ func NewGalleryService() *GalleryService {
 
 func (gs *GalleryService) Create(gallery *models.Gallery) error {
 	return gs.repo.Create(gallery)
+}
+
+func (gs *GalleryService) ByUserID(userID uint) ([]models.Gallery, error) {
+	return gs.repo.ByUserID(userID)
+}
+
+func (gs *GalleryService) ByID(id uint) (*models.Gallery, error) {
+	return gs.repo.ByID(id)
 }
