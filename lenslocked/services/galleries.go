@@ -32,3 +32,7 @@ func (gs *GalleryService) ByID(galleryID uint) (*models.Gallery, error) {
 func (gs *GalleryService) Delete(galleryID uint) error {
 	return gs.repo.Delete(galleryID)
 }
+
+func (gs *GalleryService) Update(gallery *models.Gallery) error {
+	return gs.repo.Update(gallery)
+}

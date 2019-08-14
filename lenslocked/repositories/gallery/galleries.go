@@ -44,6 +44,10 @@ func (repo *GalleryRepo) Delete(galleryID uint) error {
 	return repo.db.Delete(gallery).Error
 }
 
+func (repo *GalleryRepo) Update(gallery *models.Gallery) error {
+	return repo.db.Save(gallery).Error
+}
+
 func first(db *gorm.DB, gallery *models.Gallery) error {
 	err := db.First(gallery).Error
 	if err == gorm.ErrRecordNotFound {

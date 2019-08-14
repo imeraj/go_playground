@@ -15,12 +15,18 @@ type Galleries struct {
 	NewView   *views.View
 	ShowView  *views.View
 	IndexView *views.View
+	EditView  *views.View
 	gs        *services.GalleryService
 }
 
 type GalleryFrom struct {
 	Title  string `schema:"title" validate:"required"`
 	Errors map[string]string
+}
+
+type GalleryEditFrom struct {
+	Gallery *models.Gallery
+	Errors  map[string]string
 }
 
 func NewGallery() *Galleries {
@@ -30,6 +36,7 @@ func NewGallery() *Galleries {
 		NewView:   views.NewView("bootstrap", "galleries/new"),
 		ShowView:  views.NewView("bootstrap", "galleries/show"),
 		IndexView: views.NewView("bootstrap", "galleries/index"),
+		EditView:  views.NewView("bootstrap", "galleries/edit"),
 		gs:        gs,
 	}
 }
@@ -45,7 +52,6 @@ func (g *Galleries) Create(w http.ResponseWriter, r *http.Request) {
 	validationErrors.Errors = make(map[string]string)
 
 	var form GalleryFrom
-
 	if err := parseForm(r, &form); err != nil {
 		panic(err)
 	}
@@ -83,35 +89,76 @@ func (g *Galleries) Index(w http.ResponseWriter, r *http.Request) {
 }
 
 func (g *Galleries) Show(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	idStr := vars["id"]
-	id, err := strconv.Atoi(idStr)
+	gallery, err := g.galleryByID(w, r)
 	if err != nil {
-		http.Error(w, models.ErrInvalidGalleryID.Error(), http.StatusNotFound)
-		return
-	}
-
-	gallery, err := g.gs.ByID(uint(id))
-	if err != nil {
-		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 		return
 	}
 
 	g.ShowView.Render(w, gallery)
 }
 
-func (g *Galleries) Delete(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	idStr := vars["id"]
-	id, err := strconv.Atoi(idStr)
+func (g *Galleries) Edit(w http.ResponseWriter, r *http.Request) {
+	gallery, err := g.galleryByID(w, r)
 	if err != nil {
-		http.Error(w, models.ErrInvalidGalleryID.Error(), http.StatusNotFound)
 		return
 	}
 
-	gallery, err := g.gs.ByID(uint(id))
+	user := context.User(r.Context())
+	if gallery.UserID != user.ID {
+		http.Error(w, "You do not have permission to edit this gallery.", http.StatusForbidden)
+		return
+	}
+
+	var form GalleryEditFrom
+	form.Gallery = gallery
+
+	g.EditView.Render(w, form)
+}
+
+func (g *Galleries) Update(w http.ResponseWriter, r *http.Request) {
+	gallery, err := g.galleryByID(w, r)
+	if err != nil {
+		return
+	}
+
+	user := context.User(r.Context())
+	if gallery.UserID != user.ID {
+		http.Error(w, "You do not have permission to edit this gallery.", http.StatusForbidden)
+		return
+	}
+
+	validationErrors := &ValidationErrors{}
+	validationErrors.Errors = make(map[string]string)
+
+	var form GalleryFrom
+	if err := parseForm(r, &form); err != nil {
+		panic(err)
+	}
+
+	normalizeGalleryForm(&form)
+	if validateForm(form, validationErrors) == false {
+		var form1 GalleryEditFrom
+		form1.Gallery = gallery
+		form1.Gallery.Title = form.Title
+		form1.Errors = validationErrors.Errors
+
+		g.EditView.Render(w, form1)
+		return
+	}
+
+	gallery.Title = form.Title
+	err = g.gs.Update(gallery)
 	if err != nil {
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/galleries", http.StatusSeeOther)
+}
+
+func (g *Galleries) Delete(w http.ResponseWriter, r *http.Request) {
+	gallery, err := g.galleryByID(w, r)
+	if err != nil {
 		return
 	}
 
@@ -128,4 +175,22 @@ func (g *Galleries) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, "/galleries", http.StatusSeeOther)
+}
+
+func (g *Galleries) galleryByID(w http.ResponseWriter, r *http.Request) (*models.Gallery, error) {
+	vars := mux.Vars(r)
+	idStr := vars["id"]
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, models.ErrInvalidGalleryID.Error(), http.StatusNotFound)
+		return nil, err
+	}
+
+	gallery, err := g.gs.ByID(uint(id))
+	if err != nil {
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return nil, err
+	}
+
+	return gallery, nil
 }

@@ -58,7 +58,7 @@ func (s *Sessions) Login(w http.ResponseWriter, r *http.Request) {
 	switch err {
 	case nil:
 		remember(w, user)
-		http.Redirect(w, r, "/galleries/new", http.StatusSeeOther)
+		http.Redirect(w, r, "/galleries", http.StatusSeeOther)
 	case models.ErrNotFound:
 		fmt.Fprintf(w, "Invalid email address.")
 	case models.ErrInvalidPassword:

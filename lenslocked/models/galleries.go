@@ -19,4 +19,5 @@ type GalleryRepo interface {
 	ByUserID(userID uint) ([]Gallery, error)
 	ByID(galleryID uint) (*Gallery, error)
 	Delete(galleryID uint) error
+	Update(gallery *Gallery) error
 }
