@@ -29,6 +29,10 @@ type GalleryEditFrom struct {
 	Errors  map[string]string
 }
 
+const (
+	maxMultiPartMemory = 1 << 20
+)
+
 func NewGallery() *Galleries {
 	gs := services.NewGalleryService()
 
@@ -177,6 +181,40 @@ func (g *Galleries) Delete(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/galleries", http.StatusSeeOther)
 }
 
+func (g *Galleries) ImageUpload(w http.ResponseWriter, r *http.Request) {
+	gallery, err := g.galleryByID(w, r)
+	if err != nil {
+		return
+	}
+
+	user := context.User(r.Context())
+	if gallery.UserID != user.ID {
+		http.Error(w, "You do not have upload permission for this gallery.", http.StatusForbidden)
+		return
+	}
+
+	err = r.ParseMultipartForm(maxMultiPartMemory)
+	if err != nil {
+		g.EditView.Render(w, gallery)
+		return
+	}
+
+	galleryPath, err := createGalleryPath(gallery.ID)
+	if err != nil {
+		g.EditView.Render(w, gallery)
+		return
+	}
+
+	files := r.MultipartForm.File["images"]
+	err = g.gs.ProcessImages(galleryPath, files)
+	if err != nil {
+		g.EditView.Render(w, gallery)
+		return
+	}
+
+	http.Redirect(w, r, "/galleries", http.StatusSeeOther)
+}
+
 func (g *Galleries) galleryByID(w http.ResponseWriter, r *http.Request) (*models.Gallery, error) {
 	vars := mux.Vars(r)
 	idStr := vars["id"]
@@ -192,5 +230,7 @@ func (g *Galleries) galleryByID(w http.ResponseWriter, r *http.Request) (*models
 		return nil, err
 	}
 
+	images, _ := g.gs.ByGalleryID(gallery.ID)
+	gallery.Images = images
 	return gallery, nil
 }

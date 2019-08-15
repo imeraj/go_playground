@@ -2,7 +2,10 @@ package controllers
 
 import (
 	"encoding/hex"
+	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
 
 	"github.com/gorilla/schema"
 	"github.com/gorilla/securecookie"
@@ -65,4 +68,17 @@ func getCookie(r *http.Request) (map[string]string, error) {
 		return value, nil
 	}
 	return nil, err
+}
+
+func imagePath(galleryID uint) string {
+	return filepath.Join("public", "images", "galleries", fmt.Sprintf("%v", galleryID))
+}
+
+func createGalleryPath(galleryID uint) (string, error) {
+	galleryPath := imagePath(galleryID)
+	err := os.MkdirAll(galleryPath, 0755)
+	if err != nil {
+		return "", err
+	}
+	return galleryPath, nil
 }

@@ -29,6 +29,9 @@ func init() {
 func main() {
 	r := mux.NewRouter()
 
+	imageHandler := http.FileServer(http.Dir("public/images/"))
+	r.PathPrefix("/public/images/").Handler(http.StripPrefix("/public/images/", imageHandler))
+
 	r.Handle("/", staticC.Home).Methods("GET")
 	r.Handle("/contact", staticC.Contact).Methods("GET")
 
@@ -45,6 +48,7 @@ func main() {
 	r.HandleFunc("/galleries/{id:[0-9]+}/delete", authMw.ApplyFn(galleriesC.Delete)).Methods("POST")
 	r.HandleFunc("/galleries/{id:[0-9]+}/edit", authMw.ApplyFn(galleriesC.Edit)).Methods("GET")
 	r.HandleFunc("/galleries/{id:[0-9]+}/update", authMw.ApplyFn(galleriesC.Update)).Methods("POST")
+	r.HandleFunc("/galleries/{id:[0-9]+}/images", authMw.ApplyFn(galleriesC.ImageUpload)).Methods("POST")
 
 	r.NotFoundHandler = http.HandlerFunc(errorC.NotFound)
 
