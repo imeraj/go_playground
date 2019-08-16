@@ -36,6 +36,15 @@ func (gs *GalleryService) ByID(galleryID uint) (*models.Gallery, error) {
 }
 
 func (gs *GalleryService) Delete(galleryID uint) error {
+	gallery, err := gs.ByID(galleryID)
+	if err != nil {
+		return err
+	}
+
+	if err := os.RemoveAll(gs.imagePath(gallery.ID)); err != nil {
+		return err
+	}
+
 	return gs.repo.Delete(galleryID)
 }
 
@@ -65,18 +74,30 @@ func (gs *GalleryService) ProcessImages(galleryPath string, files []*multipart.F
 	return nil
 }
 
-func (gs *GalleryService) ByGalleryID(galleryID uint) ([]string, error) {
+func (gs *GalleryService) DeleteImage(gallery *models.Gallery, image *models.Image) error {
+	if err := os.Remove(image.RelativePath()); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (gs *GalleryService) ByGalleryID(galleryID uint) ([]models.Image, error) {
 	path := gs.imagePath(galleryID)
 	strings, err := filepath.Glob(filepath.Join(path, "*"))
 	if err != nil {
 		return nil, err
 	}
 
-	for i := range strings {
-		strings[i] = "/" + strings[i]
+	ret := make([]models.Image, len(strings))
+	for i, imageStr := range strings {
+		ret[i] = models.Image{
+			Filename:  filepath.Base(imageStr),
+			GalleryID: galleryID,
+		}
 	}
 
-	return strings, nil
+	return ret, nil
 }
 
 func (gs *GalleryService) imagePath(galleryID uint) string {
