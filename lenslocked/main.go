@@ -31,7 +31,7 @@ func main() {
 
 	assetHandler := http.FileServer(http.Dir("./assets/"))
 	assetHandler = http.StripPrefix("/assets/", assetHandler)
-	r.PathPrefix("/assets").Handler(assetHandler)
+	r.PathPrefix("/assets/").Handler(assetHandler)
 
 	imageHandler := http.FileServer(http.Dir("public/images/"))
 	r.PathPrefix("/public/images/").Handler(http.StripPrefix("/public/images/", imageHandler))
