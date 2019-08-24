@@ -2,6 +2,7 @@ package views
 
 import (
 	"net/http"
+	"net/url"
 	"path/filepath"
 	"text/template"
 )
@@ -22,7 +23,11 @@ func NewView(layout string, files ...string) *View {
 	addTemplateExt(files)
 
 	files = append(files, layoutFiles()...) // unpack slice to variadic parameters
-	t, err := template.ParseFiles(files...)
+	t, err := template.New("").Funcs(template.FuncMap{
+		"pathEscape": func(s string) string {
+			return url.PathEscape(s)
+		},
+	}).ParseFiles(files...)
 	if err != nil {
 		panic(err)
 	}
