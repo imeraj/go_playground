@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -212,7 +213,8 @@ func (g *Galleries) ImageUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/galleries", http.StatusSeeOther)
+	url := fmt.Sprintf("/galleries/%v/edit", gallery.ID)
+	http.Redirect(w, r, url, http.StatusSeeOther)
 }
 
 func (g *Galleries) ImageDelete(w http.ResponseWriter, r *http.Request) {
@@ -239,7 +241,8 @@ func (g *Galleries) ImageDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/galleries", http.StatusSeeOther)
+	url := fmt.Sprintf("/galleries/%v/edit", gallery.ID)
+	http.Redirect(w, r, url, http.StatusSeeOther)
 }
 
 func (g *Galleries) galleryByID(w http.ResponseWriter, r *http.Request) (*models.Gallery, error) {
