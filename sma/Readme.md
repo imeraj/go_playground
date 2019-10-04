@@ -36,6 +36,7 @@ Basic error handling has been added in case of input processing and in case ther
 
 # Output from sample run 
 
+```
 Enter window size: 3
 Enter numbers for calculating average - 
 1
@@ -55,3 +56,4 @@ Not enough data points!
 8
 
  Average: 6.333333 (5.000000 6.000000 8.000000)
+ ```
