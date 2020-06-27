@@ -1,8 +1,9 @@
 package concurrency
 
 import (
-	"testing"
 	"reflect"
+	"testing"
+	"time"
 )
 
 func mockWebsiteChecker(url string) bool {
@@ -21,14 +22,30 @@ func TestCheckWebsites(t *testing.T) {
 	}
 
 	want := map[string]bool{
-		"http://google.com": true,
-		"http://blog.abc.com": true,
+		"http://google.com":       true,
+		"http://blog.abc.com":     true,
 		"waat://furhurterwe.geds": false,
 	}
 
-	got := checkWebsites(mockWebsiteChecker, websites)
+	got := CheckWebsites(mockWebsiteChecker, websites)
 
 	if !reflect.DeepEqual(want, got) {
 		t.Errorf("expected %v, got %v", want, got)
+	}
+}
+
+func slowWebsiteChecker(_ string) bool {
+	time.Sleep(20 * time.Millisecond)
+	return true
+}
+
+func BenchmarkCheckWebsite(b *testing.B) {
+	urls := make([]string, 100)
+	for i := 0; i < 100; i++ {
+		urls[i] = "a url"
+	}
+
+	for i := 0; i < b.N; i++ {
+		CheckWebsites(slowWebsiteChecker, urls)
 	}
 }
