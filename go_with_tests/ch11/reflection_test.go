@@ -2,6 +2,7 @@ package main
 
 import (
 	"reflect"
+	"sort"
 	"testing"
 )
 
@@ -45,6 +46,22 @@ func TestWalk(t *testing.T) {
 			},
 			[]string{"Toronto", "London"},
 		},
+		{
+			"Arrays",
+			[2]Profile{
+				{33, "Toronto"},
+				{34, "London"},
+			},
+			[]string{"Toronto", "London"},
+		},
+		{
+			"Maps",
+			map[string]string{
+				"TR": "Toronto",
+				"LN": "London",
+			},
+			[]string{"Toronto", "London"},
+		},
 	}
 
 	for _, test := range cases {
@@ -54,6 +71,9 @@ func TestWalk(t *testing.T) {
 			walk(test.Input, func(input string) {
 				got = append(got, input)
 			})
+
+			sort.Strings(got)
+			sort.Strings(test.ExpectedCalls)
 
 			if !reflect.DeepEqual(got, test.ExpectedCalls) {
 				t.Errorf("got %v, want %v", got, test.ExpectedCalls)
