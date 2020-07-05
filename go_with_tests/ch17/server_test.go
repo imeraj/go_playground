@@ -105,3 +105,29 @@ func TestStoreWins(t *testing.T) {
 		}
 	})
 }
+
+func TestRecodringWinsAndRetrievingThem(t *testing.T) {
+	store := NewInMemoryPlayStore()
+	server := &PlayerServer{store}
+	player := "Pepper"
+
+	request, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("/players/%s", player), nil)
+	response := httptest.NewRecorder()
+	server.ServeHTTP(response, request)
+	server.ServeHTTP(response, request)
+	server.ServeHTTP(response, request)
+
+	request, _ = http.NewRequest(http.MethodGet, fmt.Sprintf("/players/%s", player), nil)
+	response = httptest.NewRecorder()
+	server.ServeHTTP(response, request)
+
+	got := response.Body.String()
+	want := "3"
+
+	assertStatus(t, response.Code, http.StatusOK)
+
+	if got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+
+}

@@ -14,22 +14,20 @@ type PlayerServer struct {
 	store PlayerStore
 }
 
-type InMemoryPlayStore struct{}
+type InMemoryPlayStore struct {
+	store map[string]int
+}
 
-func (i *InMemoryPlayStore) GetPlayerScore(player string) int {
-	if player == "Pepper" {
-		return 20
-	}
+func NewInMemoryPlayStore() *InMemoryPlayStore {
+	return &InMemoryPlayStore{store: map[string]int{}}
+}
 
-	if player == "Floyd" {
-		return 10
-	}
-
-	return 0
+func (i *InMemoryPlayStore) GetPlayerScore(name string) int {
+	return i.store[name]
 }
 
 func (i *InMemoryPlayStore) RecordWin(name string) {
-
+	i.store[name]++
 }
 
 func (p *PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {

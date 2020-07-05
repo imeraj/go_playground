@@ -6,9 +6,9 @@ import (
 )
 
 func main() {
-	server := &PlayerServer{&InMemoryPlayStore{}}
+	server := &PlayerServer{NewInMemoryPlayStore()}
 
 	if err := http.ListenAndServe(":8080", server); err != nil {
-		log.Fatalf("could not listen on port 500 %v", err)
+		log.Fatalf("could not listen on port %v", err)
 	}
 }
