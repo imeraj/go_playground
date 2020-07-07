@@ -11,17 +11,19 @@ type PlayerStore interface {
 }
 
 type PlayerServer struct {
-	store  PlayerStore
-	router *http.ServeMux
+	store PlayerStore
+	http.Handler
 }
 
 func NewPlayerServer(store PlayerStore) *PlayerServer {
-	p := &PlayerServer{
-		store,
-		http.NewServeMux()}
+	p := new(PlayerServer)
 
-	p.router.Handle("/league", http.HandlerFunc(p.leagueHandler))
-	p.router.Handle("/players/", http.HandlerFunc(p.playerHandler))
+	p.store = store
+
+	router := http.NewServeMux()
+	router.Handle("/league", http.HandlerFunc(p.leagueHandler))
+	router.Handle("/players/", http.HandlerFunc(p.playerHandler))
+	p.Handler = router
 
 	return p
 }
@@ -54,10 +56,6 @@ func (i *InMemoryPlayStore) GetPlayerScore(name string) int {
 
 func (i *InMemoryPlayStore) RecordWin(name string) {
 	i.store[name]++
-}
-
-func (p *PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	p.router.ServeHTTP(w, r)
 }
 
 func (p *PlayerServer) processWin(w http.ResponseWriter, r *http.Request, player string) {
