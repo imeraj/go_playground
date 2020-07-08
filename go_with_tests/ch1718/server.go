@@ -1,13 +1,20 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 )
 
+type Player struct {
+	Name string
+	Wins int
+}
+
 type PlayerStore interface {
 	GetPlayerScore(player string) int
 	RecordWin(name string)
+	GetLeague() []Player
 }
 
 type PlayerServer struct {
@@ -29,6 +36,8 @@ func NewPlayerServer(store PlayerStore) *PlayerServer {
 }
 
 func (p *PlayerServer) leagueHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(p.store.GetLeague())
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -43,7 +52,8 @@ func (p *PlayerServer) playerHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type InMemoryPlayStore struct {
-	store map[string]int
+	store  map[string]int
+	league []Player
 }
 
 func NewInMemoryPlayStore() *InMemoryPlayStore {
@@ -56,6 +66,14 @@ func (i *InMemoryPlayStore) GetPlayerScore(name string) int {
 
 func (i *InMemoryPlayStore) RecordWin(name string) {
 	i.store[name]++
+}
+
+func (i *InMemoryPlayStore) GetLeague() []Player {
+	var league []Player
+	for name, wins := range i.store {
+		league = append(league, Player{Name: name, Wins: wins})
+	}
+	return league
 }
 
 func (p *PlayerServer) processWin(w http.ResponseWriter, r *http.Request, player string) {
