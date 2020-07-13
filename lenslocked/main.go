@@ -19,7 +19,7 @@ var authMw *middlewares.Auth
 func init() {
 	errorC = controllers.NewErrors()
 	staticC = controllers.NewStatic()
-	userC = controllers.NewUser()
+	userC = controllers.NewUsers()
 	sessionC = controllers.NewSession()
 	galleriesC = controllers.NewGallery()
 

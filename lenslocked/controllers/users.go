@@ -21,7 +21,7 @@ type SignupForm struct {
 	Errors   map[string]string
 }
 
-func NewUser() *Users {
+func NewUsers() *Users {
 	us := services.NewUserService()
 
 	return &Users{

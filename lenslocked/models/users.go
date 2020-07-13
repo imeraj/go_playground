@@ -8,7 +8,7 @@ type User struct {
 	ID uint
 
 	Name         string
-	Email        string
+	Email        string `gorm:"not null;unique_index"`
 	Password     string `gorm:"-"`
 	PasswordHash string
 	Remember     string `gorm:"-"`
