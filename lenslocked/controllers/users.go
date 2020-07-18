@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/imeraj/go_playground/lenslocked/helpers"
 	"github.com/imeraj/go_playground/lenslocked/models"
 	"github.com/imeraj/go_playground/lenslocked/services"
 	"github.com/imeraj/go_playground/lenslocked/views"
@@ -42,7 +43,7 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 
 	var form SignupForm
 
-	if err := parseForm(r, &form); err != nil {
+	if err := helpers.ParseForm(r, &form); err != nil {
 		panic(err)
 	}
 

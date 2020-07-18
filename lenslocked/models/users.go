@@ -2,6 +2,12 @@ package models
 
 import (
 	"time"
+	"errors"
+)
+
+var (
+	ErrNotFound         = errors.New("models: User not found")
+	ErrInvalidPassword  = errors.New("models: Incorrect password provided")
 )
 
 type User struct {

@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/imeraj/go_playground/lenslocked/helpers"
+
 	"github.com/gorilla/mux"
 	"github.com/imeraj/go_playground/lenslocked/context"
 	"github.com/imeraj/go_playground/lenslocked/models"
@@ -57,7 +59,7 @@ func (g *Galleries) Create(w http.ResponseWriter, r *http.Request) {
 	validationErrors.Errors = make(map[string]string)
 
 	var form GalleryFrom
-	if err := parseForm(r, &form); err != nil {
+	if err := helpers.ParseForm(r, &form); err != nil {
 		panic(err)
 	}
 
@@ -136,7 +138,7 @@ func (g *Galleries) Update(w http.ResponseWriter, r *http.Request) {
 	validationErrors.Errors = make(map[string]string)
 
 	var form GalleryFrom
-	if err := parseForm(r, &form); err != nil {
+	if err := helpers.ParseForm(r, &form); err != nil {
 		panic(err)
 	}
 
@@ -200,7 +202,7 @@ func (g *Galleries) ImageUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	galleryPath, err := createGalleryPath(gallery.ID)
+	galleryPath, err := helpers.CreateGalleryPath(gallery.ID)
 	if err != nil {
 		g.EditView.Render(w, gallery)
 		return

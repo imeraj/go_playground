@@ -2,6 +2,11 @@ package models
 
 import (
 	"time"
+	"errors"
+)
+
+var (
+	ErrInvalidGalleryID = errors.New("models: Incorrect gallery ID provided")
 )
 
 type Gallery struct {

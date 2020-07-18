@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/imeraj/go_playground/lenslocked/helpers"
+
 	"github.com/imeraj/go_playground/lenslocked/models"
 	"github.com/imeraj/go_playground/lenslocked/services"
 	"github.com/imeraj/go_playground/lenslocked/utils/hash"
@@ -32,7 +34,7 @@ func NewSession() *Sessions {
 }
 
 func (s *Sessions) GetCookie(r *http.Request) (map[string]string, error) {
-	return getCookie(r)
+	return helpers.GetCookie(r)
 }
 
 func (s *Sessions) GetSessionService() *services.SessionService {
@@ -44,7 +46,7 @@ func (s *Sessions) Login(w http.ResponseWriter, r *http.Request) {
 	validationErrors.Errors = make(map[string]string)
 	form := LoginForm{}
 
-	if err := parseForm(r, &form); err != nil {
+	if err := helpers.ParseForm(r, &form); err != nil {
 		panic(err)
 	}
 
@@ -57,7 +59,7 @@ func (s *Sessions) Login(w http.ResponseWriter, r *http.Request) {
 	user, err := s.ss.Authenticate(form.Email, form.Password)
 	switch err {
 	case nil:
-		remember(w, user)
+		helpers.Remember(w, user)
 		http.Redirect(w, r, "/galleries", http.StatusSeeOther)
 	case models.ErrNotFound:
 		fmt.Fprintf(w, "Invalid email address.")

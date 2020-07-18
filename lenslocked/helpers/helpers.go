@@ -1,4 +1,4 @@
-package controllers
+package helpers
 
 import (
 	"encoding/hex"
@@ -25,7 +25,7 @@ func init() {
 	s = securecookie.New(hKey, bKey)
 }
 
-func parseForm(r *http.Request, dst interface{}) error {
+func ParseForm(r *http.Request, dst interface{}) error {
 	if err := r.ParseForm(); err != nil {
 		return err
 	}
@@ -38,7 +38,7 @@ func parseForm(r *http.Request, dst interface{}) error {
 	return nil
 }
 
-func remember(w http.ResponseWriter, user *models.User) {
+func Remember(w http.ResponseWriter, user *models.User) {
 	setCookie(w, user)
 }
 
@@ -57,7 +57,7 @@ func setCookie(w http.ResponseWriter, user *models.User) {
 	}
 }
 
-func getCookie(r *http.Request) (map[string]string, error) {
+func GetCookie(r *http.Request) (map[string]string, error) {
 	cookie, err := r.Cookie("lenslocked")
 	if err != nil {
 		return nil, err
@@ -74,7 +74,7 @@ func imagePath(galleryID uint) string {
 	return filepath.Join("public", "images", "galleries", fmt.Sprintf("%v", galleryID))
 }
 
-func createGalleryPath(galleryID uint) (string, error) {
+func CreateGalleryPath(galleryID uint) (string, error) {
 	galleryPath := imagePath(galleryID)
 	err := os.MkdirAll(galleryPath, 0755)
 	if err != nil {
