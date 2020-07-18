@@ -18,3 +18,9 @@ type GalleryFrom struct {
 	Title  string `schema:"title" validate:"required"`
 	Errors map[string]string
 }
+
+type LoginForm struct {
+	Email    string `schema:"email" validate:"email,required"`
+	Password string `schema:"password" validate:"required"`
+	Errors   map[string]string
+}

@@ -18,12 +18,6 @@ type Sessions struct {
 	hmac      hash.HMAC
 }
 
-type LoginForm struct {
-	Email    string `schema:"email" validate:"email,required"`
-	Password string `schema:"password" validate:"required"`
-	Errors   map[string]string
-}
-
 func NewSession() *Sessions {
 	ss := services.NewSessionService()
 
@@ -44,7 +38,7 @@ func (s *Sessions) GetSessionService() *services.SessionService {
 func (s *Sessions) Login(w http.ResponseWriter, r *http.Request) {
 	validationErrors := &helpers.ValidationErrors{}
 	validationErrors.Errors = make(map[string]string)
-	form := LoginForm{}
+	form := helpers.LoginForm{}
 
 	if err := helpers.ParseForm(r, &form); err != nil {
 		panic(err)
