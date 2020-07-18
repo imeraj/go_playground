@@ -42,7 +42,7 @@ func (s *Sessions) GetSessionService() *services.SessionService {
 }
 
 func (s *Sessions) Login(w http.ResponseWriter, r *http.Request) {
-	validationErrors := &ValidationErrors{}
+	validationErrors := &helpers.ValidationErrors{}
 	validationErrors.Errors = make(map[string]string)
 	form := LoginForm{}
 
@@ -50,7 +50,7 @@ func (s *Sessions) Login(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	if validateForm(form, validationErrors) == false {
+	if helpers.ValidateForm(form, validationErrors) == false {
 		form.Errors = validationErrors.Errors
 		s.LoginView.Render(w, form)
 		return

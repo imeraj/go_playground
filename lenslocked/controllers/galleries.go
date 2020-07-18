@@ -22,16 +22,6 @@ type Galleries struct {
 	gs        *services.GalleryService
 }
 
-type GalleryFrom struct {
-	Title  string `schema:"title" validate:"required"`
-	Errors map[string]string
-}
-
-type GalleryEditFrom struct {
-	Gallery *models.Gallery
-	Errors  map[string]string
-}
-
 const (
 	maxMultiPartMemory = 1 << 20
 )
@@ -55,16 +45,16 @@ func (g *Galleries) New(w http.ResponseWriter, r *http.Request) {
 }
 
 func (g *Galleries) Create(w http.ResponseWriter, r *http.Request) {
-	validationErrors := &ValidationErrors{}
+	validationErrors := &helpers.ValidationErrors{}
 	validationErrors.Errors = make(map[string]string)
 
-	var form GalleryFrom
+	var form helpers.GalleryFrom
 	if err := helpers.ParseForm(r, &form); err != nil {
 		panic(err)
 	}
 
-	normalizeGalleryForm(&form)
-	if validateForm(form, validationErrors) == false {
+	helpers.NormalizeGalleryForm(&form)
+	if helpers.ValidateForm(form, validationErrors) == false {
 		form.Errors = validationErrors.Errors
 		g.NewView.Render(w, form)
 		return
@@ -116,7 +106,7 @@ func (g *Galleries) Edit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var form GalleryEditFrom
+	var form helpers.GalleryEditFrom
 	form.Gallery = gallery
 
 	g.EditView.Render(w, form)
@@ -134,17 +124,17 @@ func (g *Galleries) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	validationErrors := &ValidationErrors{}
+	validationErrors := &helpers.ValidationErrors{}
 	validationErrors.Errors = make(map[string]string)
 
-	var form GalleryFrom
+	var form helpers.GalleryFrom
 	if err := helpers.ParseForm(r, &form); err != nil {
 		panic(err)
 	}
 
-	normalizeGalleryForm(&form)
-	if validateForm(form, validationErrors) == false {
-		var form1 GalleryEditFrom
+	helpers.NormalizeGalleryForm(&form)
+	if helpers.ValidateForm(form, validationErrors) == false {
+		var form1 helpers.GalleryEditFrom
 		form1.Gallery = gallery
 		form1.Gallery.Title = form.Title
 		form1.Errors = validationErrors.Errors

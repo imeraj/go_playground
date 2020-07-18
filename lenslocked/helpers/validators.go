@@ -1,7 +1,6 @@
-package controllers
+package helpers
 
 import (
-	"bytes"
 	"fmt"
 	"reflect"
 	"strings"
@@ -78,15 +77,7 @@ func translateFunc(ut ut.Translator, fe validator.FieldError) string {
 	return t
 }
 
-func createKeyValuePairs(m map[string]string) string {
-	b := new(bytes.Buffer)
-	for key, value := range m {
-		fmt.Fprintf(b, "%s=\"%s\"\n", key, value)
-	}
-	return b.String()
-}
-
-func validateForm(form interface{}, validationErrors *ValidationErrors) bool {
+func ValidateForm(form interface{}, validationErrors *ValidationErrors) bool {
 	errs := validate.Struct(form)
 	if errs == nil {
 		return true
@@ -105,7 +96,7 @@ func validateForm(form interface{}, validationErrors *ValidationErrors) bool {
 	return len(validationErrors.Errors) == 0
 }
 
-func normalizeSignUpForm(form *SignupForm) error {
+func NormalizeSignUpForm(form *SignupForm) error {
 	form.Name = strings.TrimSpace(form.Name)
 
 	form.Email = strings.ToLower(form.Email)
@@ -114,7 +105,7 @@ func normalizeSignUpForm(form *SignupForm) error {
 	return nil
 }
 
-func normalizeGalleryForm(form *GalleryFrom) error {
+func NormalizeGalleryForm(form *GalleryFrom) error {
 	form.Title = strings.TrimSpace(form.Title)
 
 	return nil

@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/imeraj/go_playground/lenslocked/helpers"
+
 	"github.com/imeraj/go_playground/lenslocked/models"
 	"github.com/imeraj/go_playground/lenslocked/services"
 	"github.com/imeraj/go_playground/lenslocked/views"
@@ -13,13 +14,6 @@ import (
 type Users struct {
 	NewView *views.View
 	us      *services.UserService
-}
-
-type SignupForm struct {
-	Name     string `schema:"name" validate:"alphanum,required"`
-	Email    string `schema:"email" validate:"email,required"`
-	Password string `schema:"password" validate:"min=3,max=8,required"`
-	Errors   map[string]string
 }
 
 func NewUsers() *Users {
@@ -38,17 +32,17 @@ func (u *Users) New(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
-	validationErrors := &ValidationErrors{}
+	validationErrors := &helpers.ValidationErrors{}
 	validationErrors.Errors = make(map[string]string)
 
-	var form SignupForm
+	var form helpers.SignupForm
 
 	if err := helpers.ParseForm(r, &form); err != nil {
 		panic(err)
 	}
 
-	normalizeSignUpForm(&form)
-	if validateForm(form, validationErrors) == false {
+	helpers.NormalizeSignUpForm(&form)
+	if helpers.ValidateForm(form, validationErrors) == false {
 		form.Errors = validationErrors.Errors
 		u.NewView.Render(w, form)
 		return
