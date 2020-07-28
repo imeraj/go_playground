@@ -1,8 +1,6 @@
 package views
 
 import (
-	"log"
-
 	"github.com/imeraj/go_playground/lenslocked/models"
 )
 
@@ -33,16 +31,9 @@ func (d *Data) AlertError(msg string) {
 	}
 }
 
-func (d *Data) SetAlert(err error) {
-	var msg string
-	if pErr, ok := err.(PublicError); ok {
-		msg = pErr.Public()
-	} else {
-		log.Println(err)
-		msg = AlertMsgGeneric
-	}
+func (d *Data) SetAlert(msg string, level string) {
 	d.Alert = &Alert{
-		Level:   AlertLvlError,
+		Level:   level,
 		Message: msg,
 	}
 }

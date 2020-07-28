@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/imeraj/go_playground/lenslocked/helpers"
@@ -36,6 +35,7 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 	validationErrors.Errors = make(map[string]string)
 
 	var form helpers.SignupForm
+	var vd views.Data
 
 	if err := helpers.ParseForm(r, &form); err != nil {
 		panic(err)
@@ -55,9 +55,13 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := u.us.Create(&user); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		vd.Yield = form
+		vd.SetAlert(err.Error(), views.AlertLvlError)
+		u.NewView.Render(w, r, vd)
 		return
 	}
 
-	fmt.Fprintf(w, "User created!")
+	vd.Yield = form
+	vd.SetAlert("User created successfully.", views.AlertLvlSuccess)
+	u.NewView.Render(w, r, vd)
 }

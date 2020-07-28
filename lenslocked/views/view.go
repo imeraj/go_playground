@@ -46,6 +46,7 @@ func NewView(layout string, files ...string) *View {
 
 func (v *View) Render(w http.ResponseWriter, r *http.Request, data interface{}) error {
 	w.Header().Add("Content-Type", "text/html")
+
 	var vd Data
 	switch d := data.(type) {
 	case Data:
@@ -67,7 +68,7 @@ func (v *View) Render(w http.ResponseWriter, r *http.Request, data interface{}) 
 	err := tpl.ExecuteTemplate(&buf, v.Layout, vd)
 	if err != nil {
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
-		return nil
+		return err
 	}
 	io.Copy(w, &buf)
 	return nil
