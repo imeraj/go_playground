@@ -18,7 +18,7 @@ func NewErrors() *Errors {
 
 func (e *Errors) NotFound(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
-	must(e.NotFoundView.Render(w, nil))
+	must(e.NotFoundView.Render(w, r, nil))
 }
 
 func must(err error) {

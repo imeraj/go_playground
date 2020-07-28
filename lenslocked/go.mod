@@ -10,6 +10,7 @@ require (
 	github.com/go-playground/universal-translator v0.16.0
 	github.com/go-playground/validator v9.29.1+incompatible
 	github.com/go-sql-driver/mysql v1.5.0
+	github.com/gorilla/csrf v1.7.0
 	github.com/gorilla/mux v1.7.3
 	github.com/gorilla/schema v1.1.0
 	github.com/gorilla/securecookie v1.1.1

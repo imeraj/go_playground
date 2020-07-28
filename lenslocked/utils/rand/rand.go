@@ -11,7 +11,7 @@ func RememberToken() (string, error) {
 	return randString(RememberTokenBytes)
 }
 
-func randBytes(n int) ([]byte, error) {
+func Bytes(n int) ([]byte, error) {
 	b := make([]byte, n)
 	_, err := rand.Read(b)
 	if err != nil {
@@ -21,7 +21,7 @@ func randBytes(n int) ([]byte, error) {
 }
 
 func randString(nBytes int) (string, error) {
-	b, err := randBytes(nBytes)
+	b, err := Bytes(nBytes)
 	if err != nil {
 		return "", err
 	}

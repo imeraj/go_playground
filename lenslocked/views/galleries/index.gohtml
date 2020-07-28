@@ -27,6 +27,7 @@
                 <td>
                     <form action="/galleries/{{.ID}}/delete" method="POST">
                         <button type="submit" class="btn btn-danger">Delete</button>
+                        {{csrfField}}
                     </form>
                 </td>
             </tr>

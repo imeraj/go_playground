@@ -26,7 +26,7 @@ func NewUsers() *Users {
 }
 
 func (u *Users) New(w http.ResponseWriter, r *http.Request) {
-	if err := u.NewView.Render(w, nil); err != nil {
+	if err := u.NewView.Render(w, r, nil); err != nil {
 		panic(err)
 	}
 }
@@ -44,7 +44,7 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 	helpers.NormalizeSignUpForm(&form)
 	if helpers.ValidateForm(form, validationErrors) == false {
 		form.Errors = validationErrors.Errors
-		u.NewView.Render(w, form)
+		u.NewView.Render(w, r, form)
 		return
 	}
 

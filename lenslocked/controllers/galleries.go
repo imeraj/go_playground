@@ -39,7 +39,7 @@ func NewGallery() *Galleries {
 }
 
 func (g *Galleries) New(w http.ResponseWriter, r *http.Request) {
-	if err := g.NewView.Render(w, nil); err != nil {
+	if err := g.NewView.Render(w, r, nil); err != nil {
 		panic(err)
 	}
 }
@@ -56,7 +56,7 @@ func (g *Galleries) Create(w http.ResponseWriter, r *http.Request) {
 	helpers.NormalizeGalleryForm(&form)
 	if helpers.ValidateForm(form, validationErrors) == false {
 		form.Errors = validationErrors.Errors
-		g.NewView.Render(w, form)
+		g.NewView.Render(w, r, form)
 		return
 	}
 
@@ -82,7 +82,7 @@ func (g *Galleries) Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	g.IndexView.Render(w, galleries)
+	g.IndexView.Render(w, r, galleries)
 }
 
 func (g *Galleries) Show(w http.ResponseWriter, r *http.Request) {
@@ -91,7 +91,7 @@ func (g *Galleries) Show(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	g.ShowView.Render(w, gallery)
+	g.ShowView.Render(w, r, gallery)
 }
 
 func (g *Galleries) Edit(w http.ResponseWriter, r *http.Request) {
@@ -109,7 +109,7 @@ func (g *Galleries) Edit(w http.ResponseWriter, r *http.Request) {
 	var form helpers.GalleryEditFrom
 	form.Gallery = gallery
 
-	g.EditView.Render(w, form)
+	g.EditView.Render(w, r, form)
 }
 
 func (g *Galleries) Update(w http.ResponseWriter, r *http.Request) {
@@ -139,7 +139,7 @@ func (g *Galleries) Update(w http.ResponseWriter, r *http.Request) {
 		form1.Gallery.Title = form.Title
 		form1.Errors = validationErrors.Errors
 
-		g.EditView.Render(w, form1)
+		g.EditView.Render(w, r, form1)
 		return
 	}
 
@@ -188,20 +188,20 @@ func (g *Galleries) ImageUpload(w http.ResponseWriter, r *http.Request) {
 
 	err = r.ParseMultipartForm(maxMultiPartMemory)
 	if err != nil {
-		g.EditView.Render(w, gallery)
+		g.EditView.Render(w, r, gallery)
 		return
 	}
 
 	galleryPath, err := helpers.CreateGalleryPath(gallery.ID)
 	if err != nil {
-		g.EditView.Render(w, gallery)
+		g.EditView.Render(w, r, gallery)
 		return
 	}
 
 	files := r.MultipartForm.File["images"]
 	err = g.gs.ProcessImages(galleryPath, files)
 	if err != nil {
-		g.EditView.Render(w, gallery)
+		g.EditView.Render(w, r, gallery)
 		return
 	}
 

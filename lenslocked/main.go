@@ -2,7 +2,11 @@ package main
 
 import (
 	"net/http"
+	"os"
 
+	"github.com/imeraj/go_playground/lenslocked/utils/rand"
+
+	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
 	"github.com/imeraj/go_playground/lenslocked/controllers"
 	middlewares "github.com/imeraj/go_playground/lenslocked/middlewares"
@@ -27,6 +31,9 @@ func init() {
 }
 
 func main() {
+	isProd := os.Getenv("PROFILE") == "PROD"
+	secret, _ := rand.Bytes(32)
+	csrfMw := csrf.Protect(secret, csrf.Secure(isProd))
 	r := mux.NewRouter()
 
 	assetHandler := http.FileServer(http.Dir("./assets/"))
@@ -56,5 +63,5 @@ func main() {
 	r.HandleFunc("/galleries/{id:[0-9]+}/images/{filename}/delete", authMw.ApplyFn(galleriesC.ImageDelete)).Methods("POST")
 
 	r.NotFoundHandler = http.HandlerFunc(errorC.NotFound)
-	http.ListenAndServe(":8080", r)
+	http.ListenAndServe(":8080", csrfMw(r))
 }

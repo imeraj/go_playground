@@ -46,7 +46,7 @@ func (s *Sessions) Login(w http.ResponseWriter, r *http.Request) {
 
 	if helpers.ValidateForm(form, validationErrors) == false {
 		form.Errors = validationErrors.Errors
-		s.LoginView.Render(w, form)
+		s.LoginView.Render(w, r, form)
 		return
 	}
 

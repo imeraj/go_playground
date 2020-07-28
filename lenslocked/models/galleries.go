@@ -1,8 +1,8 @@
 package models
 
 import (
-	"time"
 	"errors"
+	"time"
 )
 
 var (
@@ -12,7 +12,7 @@ var (
 type Gallery struct {
 	ID uint
 
-	UserID uint
+	UserID uint `gorm:"not null;index"`
 	Title  string
 	Images []Image `gorm:"-"`
 
