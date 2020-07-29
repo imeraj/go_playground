@@ -69,3 +69,7 @@ func (ss *SessionService) ByRemember(token string) (*models.User, error) {
 
 	return user, nil
 }
+
+func (ss *SessionService) Update(user *models.User) {
+	ss.repo.Update(user)
+}

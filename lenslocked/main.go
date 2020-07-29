@@ -52,6 +52,8 @@ func main() {
 	r.Handle("/login", sessionC.LoginView).Methods("GET")
 	r.HandleFunc("/login", sessionC.Login).Methods("POST")
 
+	r.Handle("/logout", authMw.ApplyFn(sessionC.Logout)).Methods("POST")
+
 	r.HandleFunc("/galleries/new", authMw.ApplyFn(galleriesC.New)).Methods("GET")
 	r.HandleFunc("/galleries", authMw.ApplyFn(galleriesC.Create)).Methods("POST")
 	r.HandleFunc("/galleries", authMw.ApplyFn(galleriesC.Index)).Methods("GET")

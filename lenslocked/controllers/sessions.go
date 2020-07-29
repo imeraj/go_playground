@@ -1,9 +1,12 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/imeraj/go_playground/lenslocked/utils/rand"
+
+	"github.com/imeraj/go_playground/lenslocked/context"
 	"github.com/imeraj/go_playground/lenslocked/helpers"
 
 	"github.com/imeraj/go_playground/lenslocked/models"
@@ -38,6 +41,8 @@ func (s *Sessions) GetSessionService() *services.SessionService {
 func (s *Sessions) Login(w http.ResponseWriter, r *http.Request) {
 	validationErrors := &helpers.ValidationErrors{}
 	validationErrors.Errors = make(map[string]string)
+
+	var vd views.Data
 	form := helpers.LoginForm{}
 
 	if err := helpers.ParseForm(r, &form); err != nil {
@@ -56,10 +61,30 @@ func (s *Sessions) Login(w http.ResponseWriter, r *http.Request) {
 		helpers.Remember(w, user)
 		http.Redirect(w, r, "/galleries", http.StatusSeeOther)
 	case models.ErrNotFound:
-		fmt.Fprintf(w, "Invalid email address.")
+		vd.SetAlert("Invalid email address", views.AlertLvlError)
 	case models.ErrInvalidPassword:
-		fmt.Fprintf(w, "Invalid password provided.")
+		vd.SetAlert("Invalid password provided", views.AlertLvlError)
 	default:
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		vd.SetAlert(err.Error(), views.AlertLvlError)
 	}
+
+	vd.Yield = form
+	s.LoginView.Render(w, r, vd)
+}
+
+func (s *Sessions) Logout(w http.ResponseWriter, r *http.Request) {
+	cookie := http.Cookie{
+		Name:     "remember_token",
+		Value:    "",
+		Expires:  time.Now(),
+		HttpOnly: true,
+	}
+	http.SetCookie(w, &cookie)
+
+	user := context.User(r.Context())
+	token, _ := rand.RememberToken()
+	user.Remember = token
+	s.ss.Update(user)
+
+	http.Redirect(w, r, "/", http.StatusFound)
 }
